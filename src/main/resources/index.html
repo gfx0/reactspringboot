@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>React + Spring</title>
+    <style>
+    	.deleteBtn
+    	{
+    		float:right;
+    	}
+    </style>
+</head>
+
+<body>
+  <div class='container'>
+    <div id='root'></div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+
+<script type="text/babel">
+  class App extends React.Component {
+	constructor()
+	{
+		super();
+		this.handleClick = this.handleClick.bind(this);
+		// Button UI to control this ReactJS WebApp.
+		this.showAddStudentDialog = this.showAddStudentDialog.bind(this);
+		this.deleteStudent = this.deleteStudent.bind(this);
+		
+		// Student data container etc.
+		this.state = {
+			data: [],
+			showAddStudent: false
+		};
+		
+		// Automatically fetch student data from backend, so user always has fresh view.
+		this.fetchStudents();
+
+	}
+	
+	handleClick()
+	{
+		console.log("watasdt");
+	}
+
+	test()
+	{
+		console.log("asdf");
+	}
+	fetchStudents()
+	{		
+		fetch("http://localhost:8080/studentData")
+		.then(
+			result => result.json()
+		)
+		.then( json => { this.setState({ data: json }); } );
+	}
+
+	showAddStudentDialog(isVisible, event)
+	{
+		if ( isVisible == true )
+		{
+			this.setState({ showAddStudent: true });
+		} else {
+			this.setState({ showAddStudent: false });
+		}
+	}
+	
+	deleteStudent(studentId, event)
+	{
+		console.log("studentId: "+ studentId);
+		fetch("http://localhost:8080/deleteStudent?id="+studentId)
+		.then( result => { this.fetchStudents(); console.log("done"); } ); //Update the react view.
+	}
+
+    render() {
+
+	 return (
+
+		<div>
+			<br/>
+			<div className="container" >
+				<div className="panel panel-default">
+			  		<div className="panel-heading">
+			  			<h3>React &amp; Spring Boot WebApp by Jani M&auml;kinen</h3>
+			  		</div>
+			  		<div className="panel-body">
+
+				
+						<p>Students in database:</p>	
+						
+						{/* DEBUG: <div><pre>{JSON.stringify(this.state.data, null, 2)}</pre></div>*/}
+						
+						{/*
+				
+							Iterate through fetched DB data - show student data.
+				
+						*/}
+						<div className="panel panel-default">
+							<div className="panel-heading">
+							{
+							    Object.entries(this.state.data).map(([id, firstName, email, lastName]) => {
+							        var obj = this.state.data[id];
+							        return ([
+							            <span><b>Student:</b> {obj.firstName} {obj.lastName} ({obj.email}) </span>,
+							            <button className='btn-small btn-warning deleteBtn' value={obj.id} onClick={this.deleteStudent.bind(this, obj.id)}>Delete {/*{obj.id}*/}</button>,
+							            <br/>,
+							            <br/>
+							        ])
+							    })
+							}
+					    	</div>
+					    </div>
+					    
+					    { this.state.showAddStudent ? <AddStudent /> : <button className="btn btn-success" onClick={this.showAddStudentDialog.bind(this, true)}>Add Student</button> }
+					    
+					</div>
+				</div>
+				<p><i>Made for Haaga-Helia University of Applied Sciences Bachelor studies.</i></p>
+			</div>
+			
+			
+		</div>
+
+	 );
+
+  	}
+ 
+  }
+
+var AddStudent = React.createClass({
+
+getInitialState: function()
+{
+	return { showAddStudent: true };
+},
+handleSubmit: function(e){
+    this.submitForm(e);
+},
+submitForm : function(e){
+    this.refs.formToSubmit.submit();
+},
+clearFields: function()
+{
+	// Submits an empty form.
+	this.handleSubmit(null);
+},
+render: function() {
+    return (
+        <div id="addUser" >
+            <form ref="formToSubmit" onSubmit={this.handleSubmit} action="/createStudent" method="POST">
+			  <label>
+			    Please input the necessary records:
+			    <br/>
+			    <br/>
+			    First name: <input required type="text" name="firstName" placeholder="Insert first name"/>
+			    <br/>
+			    Last name: <input required type="text" name="lastName" placeholder="Insert last name"/>
+			    <br/>
+			    Email: <input required type="email" name="email" placeholder="name@name.com"/>
+			    <br/>
+			  </label>
+			  <br/>
+			  <input className="btn btn-success" type="submit" value="Save to Student Database" />
+			  &nbsp;<button type="button" className="btn btn-warning" onClick={this.clearFields}>Cancel</button>
+			  
+			</form>
+			
+        </div>
+    );
+}
+});
+
+ReactDOM.render(<App />, document.getElementById('root') );	
+</script>
+
+</body>
+</html>
