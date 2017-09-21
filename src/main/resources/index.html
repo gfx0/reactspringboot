@@ -27,7 +27,7 @@
 	constructor()
 	{
 		super();
-		this.handleClick = this.handleClick.bind(this);
+
 		// Button UI to control this ReactJS WebApp.
 		this.showAddStudentDialog = this.showAddStudentDialog.bind(this);
 		this.deleteStudent = this.deleteStudent.bind(this);
@@ -43,15 +43,6 @@
 
 	}
 	
-	handleClick()
-	{
-		console.log("watasdt");
-	}
-
-	test()
-	{
-		console.log("asdf");
-	}
 	fetchStudents()
 	{		
 		fetch("http://localhost:8080/studentData")
